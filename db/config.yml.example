@@ -1,0 +1,16 @@
+# Use any options accepted by PG::Connection#new.
+# Leave dbname blank to ignore an environment.
+common: &COMMON
+  host: localhost
+
+development:
+  <<: *COMMON
+  dbname:
+
+test:
+  <<: *COMMON
+  dbname:
+
+production:
+  <<: *COMMON
+  dbname:
