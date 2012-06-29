@@ -27,50 +27,46 @@ task 'db:migrate', :ver, :env do |t, args|
   env       = args['env'] || 'development'
   ms        = available_migrations
   to_ver    = args['ver'] || ms.last
-  cur_ver   = current_schema_version env
+  cur_ver   = sql('select version from schema_info', env).first['version']
   direction = to_ver >= cur_ver ? 'up' : 'down'
-  apply_migrations migration_path(ms, cur_ver, to_ver), direction, env
+  if apply_migrations migration_path(ms, cur_ver, to_ver), direction, env
+    sql env, 'update schema_info set version=$1', to_ver
+  end
 end
 
 def apply_migrations migrations, direction, env
   begin
-    sql 'begin', env
-    migrations.each do |m|
+    sql env, 'begin'
+    (migrations.select { |m| m != 0 }).each do |m|
       puts "Migrating #{m} #{direction}"
-      sql File.open("db/#{m}.#{direction}.sql", "r").read, env
-      sql 'update schema_info set version=$1', env, [m]
+      sql env, File.open("db/#{m}.#{direction}.sql", "r").read
     end
-    sql 'commit', env
+    sql env, 'commit'
+    return true
   rescue Exception => e
     puts "Failed, rolling back"
     puts e.message
-    sql 'rollback', env
+    sql env, 'rollback'
+    return false
   end
 end
 
 def available_migrations direction='up'
   migrations = Dir.glob "db/*.#{direction}.sql"
   migrations.map! {|f| File.basename(f, ".#{direction}.sql")}
-  migrations.sort.uniq
+  migrations.sort.unshift(0).uniq
 end
 
 def migration_path migrations, from, to
-  if migrations.include? from
-    migrations.reverse! if from > to
-    ends     = [from, to].map { |i| migrations.find_index i }
-    min, max = ends.min, ends.max
-    migrations[min..max][1..-1]
-  else
-    migrations.select { |m| m <= to }
-  end
+  fail "Unknown migration #{to}" unless migrations.include? to
+  migrations.reverse! if from > to
+  ends     = [from, to].map { |i| migrations.find_index i }
+  min, max = ends.min, ends.max
+  migrations[min..max][1..-1]
 end
 
-def sql s, env='development', args=[]
+def sql env, s, *args
   $db ||= Hash.new
   $db[env] ||= PG::Connection.new DB::Config[env]
   $db[env].exec s, args
-end
-
-def current_schema_version env
-  sql('select version from schema_info', env).first['version']
 end
