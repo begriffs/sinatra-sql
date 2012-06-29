@@ -2,8 +2,8 @@
 module DB
   Config = {
     development: {
-      host: 'localhost',
-      dbname: 'trails-development'
+      'host'   => 'localhost',
+      'dbname' => ''
     },
     test: {},
     production: {}

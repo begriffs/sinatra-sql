@@ -1,5 +1,7 @@
+require './db/config.rb'
+
 configure do
-  opts = DB::Config[settings.environment.to_s]
+  opts = DB::Config[settings.environment]
   $db  = PG::Connection.new opts if opts.has_key? 'dbname'
 end
 
