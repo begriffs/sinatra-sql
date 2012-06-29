@@ -1,0 +1,11 @@
+# Use any options accepted by PG::Connection#new.
+module DB
+  Config = {
+    development: {
+      host: 'localhost',
+      dbname: 'trails-development'
+    },
+    test: {},
+    production: {}
+  }
+end

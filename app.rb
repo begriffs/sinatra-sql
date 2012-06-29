@@ -1,7 +1,5 @@
 require 'sinatra'
 require 'pg'
-require 'psych'
-
 require './init'
 
 get '/' do

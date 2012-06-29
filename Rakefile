@@ -1,20 +1,22 @@
 require 'rake'
 require 'pg'
-require 'psych'
-
-$config = Psych.load File.open("db/config.yml", "r").read
-$config.select! { |name, env| env.has_key? 'dbname' }
+require './db/config.rb'
 
 task 'db:create' do
-  $config.each do |env, opts|
-    sh "createdb #{opts['dbname']}"
-    sql "create table schema_info(version integer not null)", env
-    sql "insert into schema_info (version) values (0)", env
+  DB::Config.each do |env, opts|
+    if opts[:dbname]
+      sh "createdb #{opts[:dbname]}"
+      sql env, <<-eoq
+        create table schema_info
+          (version integer not null check (version >= 0))
+      eoq
+      sql env, "insert into schema_info (version) values (0)"
+    end
   end
 end
 
 task 'db:drop' do
-  $config.each_value { |opts| sh "dropdb #{opts['dbname']}" }
+  DB::Config.each_value { |opts| sh "dropdb #{opts[:dbname]}" if opts[:dbname] }
 end
 
 task :migration do
@@ -65,7 +67,7 @@ end
 
 def sql s, env='development', args=[]
   $db ||= Hash.new
-  $db[env] ||= PG::Connection.new $config[env]
+  $db[env] ||= PG::Connection.new DB::Config[env]
   $db[env].exec s, args
 end
 
