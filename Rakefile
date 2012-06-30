@@ -37,13 +37,14 @@ task 'db:migrate', :ver, :env do |t, args|
   ms        = available_migrations
   to_ver    = args['ver'] || ms.last
   cur_ver   = current_schema_version env
-  if apply_migrations migration_path(ms, cur_ver, to_ver), env
+  direction = cur_ver <= to_ver ? 'up' : 'down'
+  if apply_migrations migration_path(ms, cur_ver, to_ver), direction, env
     sql env, 'update schema_info set version=$1', to_ver
   end
 end
 
-def apply_migrations migrations, env
-  direction = migrations.first <= migrations.last ? 'up' : 'down'
+def apply_migrations migrations, direction, env
+  return true if migrations.empty?
   begin
     sql env, 'begin'
     (migrations.select { |m| m != '0' }).each do |m|
