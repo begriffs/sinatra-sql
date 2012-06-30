@@ -1,8 +1,8 @@
 require './db/config.rb'
 
 configure do
-  opts = DB::Config[settings.environment.to_s]
-  $db  = PG::Connection.new opts if opts.has_key? 'dbname'
+  opts = ENV['DATABASE_URL'] || DB::Config[settings.environment.to_s]
+  $db  = PG::Connection.new opts
 
   set :public_folder, 'public'
 end

@@ -1,3 +1,4 @@
+# Database options for various Rack environments.
 # Use any options accepted by PG::Connection#new.
 module DB
   Config = {
@@ -6,6 +7,8 @@ module DB
       'dbname' => ''
     },
     'test'        => { },
+    # note that 'production' will be overridden by
+    # ENV['DATABASE_URL'] in, e.g. Heroku
     'production'  => { }
   }
 end

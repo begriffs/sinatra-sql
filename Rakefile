@@ -11,21 +11,19 @@ end
 task 'db:create', :env do |t, args|
   env  = args['env'] || 'development'
   opts = DB::Config[ env ]
-  if opts['dbname']
-    sh "createdb #{opts['dbname']}"
-    sql env, <<-eoq
-      create table schema_info
-        (version integer not null check (version >= 0))
-    eoq
-    sql env, "insert into schema_info (version) values (0)"
-  end
+  sh "createdb #{opts['dbname']}"
+  sql env, <<-eoq
+    create table schema_info
+      (version integer not null check (version >= 0))
+  eoq
+  sql env, "insert into schema_info (version) values (0)"
 end
 
 task 'db:drop', :env do |t, args|
   env  = args['env'] || 'development'
   opts = DB::Config[ env ]
   $db[env].finish if $db && $db[env]
-  sh "dropdb #{opts['dbname']}" if opts['dbname']
+  sh "dropdb #{opts['dbname']}"
 end
 
 task :migration do
@@ -79,7 +77,7 @@ end
 def sql env, cmd, *args
   $db ||= Hash.new
   if !$db.has_key?(env) || $db[env].finished?
-    $db[env] = PG::Connection.new DB::Config[env]
+    $db[env] = PG::Connection.new ENV['DATABASE_URL'] || DB::Config[env]
   end
   $db[env].exec cmd, args
 end
