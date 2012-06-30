@@ -1,11 +1,11 @@
 # Use any options accepted by PG::Connection#new.
 module DB
   Config = {
-    development: {
+    'development' => {
       'host'   => 'localhost',
       'dbname' => ''
     },
-    test: {},
-    production: {}
+    'test'        => { },
+    'production'  => { }
   }
 end

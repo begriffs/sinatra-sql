@@ -1,3 +1,5 @@
 source 'http://rubygems.org'
 gem 'sinatra'
 gem 'pg'
+gem 'minitest'
+gem 'turn'
