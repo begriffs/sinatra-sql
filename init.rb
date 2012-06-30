@@ -1,4 +1,4 @@
-require './db/config.rb' rescue LoadError # won't exist on Heroku
+begin; require './db/config.rb'; rescue LoadError; end
 
 configure do
   opts = ENV['DATABASE_URL'] || DB::Config[settings.environment.to_s]

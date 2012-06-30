@@ -1,7 +1,7 @@
 require 'rake'
 require 'pg'
 include Rake::DSL
-require './db/config.rb' rescue LoadError # won't exist on Heroku
+begin; require './db/config.rb'; rescue LoadError; end
 
 require 'rake/testtask'
 Rake::TestTask.new do |t|
