@@ -1,7 +1,7 @@
 require 'rake'
 require 'pg'
 include Rake::DSL
-require './db/config.rb'
+require './db/config.rb' rescue LoadError # won't exist on Heroku
 
 require 'rake/testtask'
 Rake::TestTask.new do |t|
@@ -10,8 +10,10 @@ end
 
 task 'db:create', :env do |t, args|
   env  = args['env'] || 'development'
-  opts = DB::Config[ env ]
-  sh "createdb #{opts['dbname']}"
+  if !ENV['DATABASE_URL']
+    opts = DB::Config[ env ]
+    sh "createdb #{opts['dbname']}"
+  end
   sql env, <<-eoq
     create table schema_info
       (version integer not null check (version >= 0))
@@ -20,6 +22,7 @@ task 'db:create', :env do |t, args|
 end
 
 task 'db:drop', :env do |t, args|
+  return if ENV['DATABASE_URL']
   env  = args['env'] || 'development'
   opts = DB::Config[ env ]
   $db[env].finish if $db && $db[env]
