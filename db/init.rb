@@ -6,8 +6,8 @@ module DB
     if ENV['DATABASE_URL']
       uri  = URI.parse ENV['DATABASE_URL']
       opts = {
-        'hostname' => uri.host,
-        'dbname'   => uri.path.split('/')[1]
+        'host'   => uri.host,
+        'dbname' => uri.path.split('/')[1]
       }
     else
       opts = DB::Config[env || settings.environment.to_s]
