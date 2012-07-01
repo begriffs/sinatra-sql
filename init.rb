@@ -2,10 +2,10 @@ begin; require './db/config.rb'; rescue LoadError; end
 require 'uri'
 
 configure do
-  uri = URI.parse ENV['DATABASE_URL']
-  if uri
+  if ENV['DATABASE_URL']
+    uri = URI.parse ENV['DATABASE_URL']
     opts = {
-      'hostname' => uri.host
+      'hostname' => uri.host,
       'dbname'   => uri.path.split('/')[1]
     }
   else
