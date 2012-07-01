@@ -1,7 +1,6 @@
 require 'rake'
-require 'pg'
 include Rake::DSL
-begin; require './db/config.rb'; rescue LoadError; end
+require './db/init.rb'
 
 require 'rake/testtask'
 Rake::TestTask.new do |t|
@@ -80,7 +79,7 @@ end
 def sql env, cmd, *args
   $db ||= Hash.new
   if !$db.has_key?(env) || $db[env].finished?
-    $db[env] = PG::Connection.new ENV['DATABASE_URL'] || DB::Config[env]
+    $db[env] = DB::connect env
   end
   $db[env].exec cmd, args
 end
