@@ -1,12 +1,10 @@
-require './db/config.rb'
+require './db/init'
 
 configure do
-  opts = DB::Config[settings.environment.to_s]
-  $db  = PG::Connection.new opts if opts.has_key? 'dbname'
-
   set :public_folder, 'public'
 end
 
 def sql cmd, *args
+  $db ||= DB::connect
   $db.exec cmd, args
 end
