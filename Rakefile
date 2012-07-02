@@ -13,10 +13,8 @@ task 'db:create', :env do |t, args|
     opts = DB::Config[ env ]
     sh "createdb #{opts['dbname']}"
   end
-  sql env, <<-eoq
-    create table schema_info
-      (version integer not null check (version >= 0))
-  eoq
+  sql env, 'create table schema_info (version integer not null check (version >= 0))'
+  sql env, 'create unique index schema_info_only_one_row on schema_info ((1))'
   sql env, "insert into schema_info (version) values (0)"
 end
 

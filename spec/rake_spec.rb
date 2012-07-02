@@ -25,10 +25,20 @@ describe "Rakefile" do
   end
 
   describe "db:create" do
-    it "starts at schema version 0" do
+    before do
       Rake::Task["db:create"].execute 'env' => 'test'
-      current_schema_version('test').must_equal '0'
+    end
+    after do
       Rake::Task["db:drop"].execute 'env' => 'test'
+    end
+
+    it "starts at schema version 0" do
+      current_schema_version('test').must_equal '0'
+    end
+    it "prevents multiple simultaneous schema versions" do
+      sql 'test', "insert into schema_info (version) values (42)" rescue nil
+      count = sql('test', "select count(1) from schema_info")[0]['count']
+      count.must_equal '1'
     end
   end
 
