@@ -25,7 +25,7 @@ application at this point, it will simply output this schema number.
 ### Creating a migration
 
 1. `rake migration`
-1. it creates db/<timestamp>.up.sql and db/<timestamp>.down.sql
+1. it creates db/_timestamp_.up.sql and db/_timestamp_.down.sql
 1. edit these files to (un)do whatever you want
 
 ### Running a migration
